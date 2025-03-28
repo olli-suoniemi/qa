@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: qa-api-deployment
+  namespace: production
+  labels:
+    app: qa-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: qa-api
+  template:
+    metadata:
+      labels:
+        app: qa-api
+    spec:
+      containers:
+        - name: qa-api
+          image: qa-api:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 7777
+          env:
+            - name: PGPASS
+              valueFrom:
+                secretKeyRef:
+                  name: database-cluster-app
+                  key: pgpass
+                  optional: false 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: qa-api-service
+  namespace: production
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 7777
+      targetPort: 7777
+      protocol: TCP
+  selector:
+    app: qa-api

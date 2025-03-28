@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: llm-api-deployment
+  namespace: production
+  labels:
+    app: llm-api
+spec:
+  selector:
+    matchLabels:
+      app: llm-api
+  template:
+    metadata:
+      labels:
+        app: llm-api
+    spec:
+      containers:
+        - name: llm-api
+          image: llm-api:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 7000

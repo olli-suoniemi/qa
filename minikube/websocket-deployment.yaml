@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: websocket-deployment
+  namespace: production
+  labels:
+    app: websocket
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: websocket
+  template:
+    metadata:
+      labels:
+        app: websocket
+    spec:
+      containers:
+        - name: websocket
+          image: websocket:latest
+          imagePullPolicy: Never
+          ports:
+            - containerPort: 7788

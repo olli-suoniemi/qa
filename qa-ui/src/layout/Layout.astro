@@ -1,0 +1,29 @@
+---
+import Header from "./Header.svelte";
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Questions and answers</title>
+  </head>
+  <body>
+
+    <!-- Full-width header background -->
+    <header class="bg-blue-500">
+      <!-- 70% witdh content for the header -->
+      <div class="container w-[70%] mx-auto">
+        <Header client:only={"svelte"} />
+      </div>
+    </header>
+
+    <!-- Main content, also constrained to 70% -->
+    <div class="container w-[70%] mx-auto">
+      <slot />
+    </div>
+
+  </body>
+</html>
