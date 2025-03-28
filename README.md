@@ -2,7 +2,7 @@
 
 ### 🚀 [Try the app](https://qa.olli.codes/)
 
-This project is about demonstrating the use of different programming techiques creating a question & answer (Q&A) kind of platform. The platform demonstrates progamming techniques such as scalability, load balancing, message queues, event-driven architechture and static site generation.
+This project is about demonstrating the use of different programming techiques by creating a question & answer (Q&A) kind of platform. The platform demonstrates programming techniques such as scalability, load balancing, message queues, event-driven architechture and static site generation.
 
 The Q&A platform is intended for different kind of questions and answers. In the platform you can select a course, ask questions on the course, and provide answers to the questions. There is also the possibility to upvote the questions and answers. Questions and answers can be posted by anyone, and anyone can upvote the questions and answers, allowing anonymous participation.
 
