@@ -57,10 +57,10 @@ Verify that `metrics-server` is running
 <br>
 
 
-Create `production` namespace
+Create `qa` namespace
 
 ```bash
-kubectl create namespace production
+kubectl create namespace qa
 ```
 
 <br>
@@ -73,11 +73,11 @@ minikube ip
 
 <br>
 
-Add new host `local.production` specifying it with the minikube IP. In Linux/Mac the hosts file is in `/etc/hosts`
+Add new host `local.qa` specifying it with the minikube IP. In Linux/Mac the hosts file is in `/etc/hosts`
 
 ### Modify files in qa-ui:
 
-Edit the ```domain``` to be ```local.production```
+Edit the ```domain``` to be ```local.qa```
 
 ### Building images:
 
@@ -152,7 +152,7 @@ kubectl apply -f kubernetes/database-cluster.yaml
 Get clusters
 
 ```bash
-kubectl get cluster -n production --watch
+kubectl get cluster -n qa --watch
 ```
 
 Wait for the database-cluster to be in status `Cluster in healthy state`
@@ -162,7 +162,7 @@ Wait for the database-cluster to be in status `Cluster in healthy state`
 Check database-cluster status
 
 ```bash
-kubectl cnpg status database-cluster -n production
+kubectl cnpg status database-cluster -n qa
 ```
 
 <br>
@@ -177,10 +177,10 @@ kubectl apply -f kubernetes/database-migration-job.yaml
 <br>
 
 
-Get production pods
+Get qa pods
 
 ```bash
-kubectl get pods -n production --watch
+kubectl get pods -n qa --watch
 ```
 
 Wait for the database-migration to be in status `Completed`
@@ -191,7 +191,7 @@ Wait for the database-migration to be in status `Completed`
 Check psql is accessible in database-cluster
 
 ```bash
-kubectl cnpg psql database-cluster -n production
+kubectl cnpg psql database-cluster -n qa
 
 \c app
 
@@ -254,28 +254,28 @@ kubectl apply -f kubernetes/ingress.yaml
 
 <br>
 
-Get all in `production` namespace
+Get all in `qa` namespace
 
 ```bash
-kubectl get all -n production
+kubectl get all -n qa
 ```
 
 <br>
 
-Access app in `http://local.production/`
+Access app in `http://local.qa/`
 
 ### Redeployment
 
 ```bash
-kubectl rollout restart deployment/websocket-deployment -n production
-kubectl rollout restart deployment/qa-api-deployment -n production
-kubectl rollout restart deployment/qa-ui-deployment -n production
+kubectl rollout restart deployment/websocket-deployment -n qa
+kubectl rollout restart deployment/qa-api-deployment -n qa
+kubectl rollout restart deployment/qa-ui-deployment -n qa
 ```
 
 ### Get logs
 
 ```bash
-kubectl logs <id> -n production
+kubectl logs <id> -n qa
 ```
 
 ### Deleting everything
@@ -293,7 +293,7 @@ kubectl delete -f kubernetes/database-migration-job.yaml
 kubectl delete -f kubernetes/ingress.yaml
 kubectl delete -f kubernetes/llm-api-deployment.yaml
 kubectl delete -f kubernetes/llm-api-service.yaml
-kubectl delete -f kubernetes/production-namespace.yaml
+kubectl delete -f kubernetes/qa-namespace.yaml
 kubectl delete -f kubernetes/qa-api-app.yaml
 kubectl delete -f kubernetes/qa-ui-deployment.yaml
 kubectl delete -f kubernetes/qa-ui-service.yaml

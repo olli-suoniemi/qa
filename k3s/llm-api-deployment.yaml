@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: llm-api-deployment
-  namespace: production
+  namespace: qa
   labels:
     app: llm-api
 spec:

@@ -15,7 +15,7 @@ export default function () {
   };
 
   http.post(
-    "http://local.production/api/question",
+    "http://local.qa/api/question",
     JSON.stringify(newQuestion),
   );
 }

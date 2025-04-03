@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: qa-api-deployment
-  namespace: production
+  namespace: qa
   labels:
     app: qa-api
 spec:
@@ -33,7 +33,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: qa-api-service
-  namespace: production
+  namespace: qa
 spec:
   type: LoadBalancer
   ports:

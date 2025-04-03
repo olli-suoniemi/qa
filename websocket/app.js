@@ -4,7 +4,7 @@ import { serve } from "https://deno.land/std@0.222.1/http/server.ts";
 
 const redisClient = createClient({
   socket: {
-    host: 'redis-service.production.svc.cluster.local',
+    host: 'redis-service.qa.svc.cluster.local',
     port: 6379,
   },
   pingInterval: 1000,

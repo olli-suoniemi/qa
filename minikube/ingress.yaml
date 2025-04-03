@@ -2,13 +2,13 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress-qa-ui
-  namespace: production
+  namespace: qa
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/add-base-url: "true" 
 spec:
   rules:
-    - host: local.production
+    - host: local.qa
       http:
         paths:
           - path: /
@@ -24,13 +24,13 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress-qa-api
-  namespace: production
+  namespace: qa
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
     nginx.ingress.kubernetes.io/add-base-url: "true"  
 spec:
   rules:
-    - host: local.production
+    - host: local.qa
       http:
         paths:
           - path: /api(/|$)(.*)
@@ -46,7 +46,7 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: ingress-websocket
-  namespace: production
+  namespace: qa
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/add-base-url: "true" 
@@ -56,7 +56,7 @@ metadata:
     nginx.ingress.kubernetes.io/websocket-services: "websocket-service"
 spec:
   rules:
-    - host: local.production
+    - host: local.qa
       http:
         paths:
           - path: /ws

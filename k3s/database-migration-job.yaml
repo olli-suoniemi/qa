@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: database-migration-job
-  namespace: production
+  namespace: qa
 spec:
   template:
     metadata:
@@ -25,7 +25,7 @@ spec:
                   key: password
                   optional: false
             - name: DATABASE_CLUSTER_RW_SERVICE_HOST
-              value: "database-cluster-rw.production.svc.cluster.local"
+              value: "database-cluster-rw.qa.svc.cluster.local"
             - name: DATABASE_CLUSTER_RW_SERVICE_PORT
               value: "5432"
       restartPolicy: Never

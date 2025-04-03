@@ -21,7 +21,7 @@ COPY --from=build /app/dist ./dist
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/package*.json ./
 
-# Install production dependencies
+# Install qa dependencies
 RUN npm install --omit=dev
 
 # Set environment variables for Node.js

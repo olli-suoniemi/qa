@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: qa-ui-deployment
-  namespace: production
+  namespace: qa
   labels:
     app: qa-ui
 spec:

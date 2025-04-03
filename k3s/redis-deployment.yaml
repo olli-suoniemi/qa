@@ -2,7 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: redis-deployment
-  namespace: production
+  namespace: qa
   labels:
     app: redis
 spec:
@@ -34,7 +34,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: redis-config
-  namespace: production
+  namespace: qa
 data:
   redis.conf: |
     maxmemory 50mb

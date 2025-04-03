@@ -72,10 +72,10 @@ Remember to set the images public in GHCR.
 
 <br>
 
-Copy kubernetes folder to VPS:
+Copy k3s folder to VPS:
 
 ```bash
-scp -r ~/Personal/QA-App/k3s olli@157.180.45.27:/home/olli/qa-project/kubernetes
+scp -r ~/Personal/QA-App/k3s olli@157.180.45.27:/home/olli/qa-project
 ```
 
 <br>
@@ -93,7 +93,7 @@ docker pull ghcr.io/olli-suoniemi/qa-project/flyway:latest
 Enable metrics-server addon
 
 ```bash
-kubectl apply -f kubernetes/components.yaml
+kubectl apply -f k3s/components.yaml
 ```
 
 <br>
@@ -109,10 +109,10 @@ Verify that `metrics-server` is running and ready 1/1
 <br>
 
 
-Create `production` namespace
+Create `qa` namespace
 
 ```bash
-kubectl apply -f kubernetes/production-namespace.yaml
+kubectl apply -f k3s/qa-namespace.yaml
 ``` 
 
 <br>
@@ -122,7 +122,7 @@ kubectl apply -f kubernetes/production-namespace.yaml
 Apply database-cluster 
 
 ```bash
-kubectl apply -f kubernetes/database-cluster.yaml
+kubectl apply -f k3s/database-cluster.yaml
 ```
 
 <br>
@@ -130,7 +130,7 @@ kubectl apply -f kubernetes/database-cluster.yaml
 Get clusters
 
 ```bash
-kubectl get cluster -n production --watch
+kubectl get cluster -n qa --watch
 ```
 
 Wait for the database-cluster to be in status `Cluster in healthy state`
@@ -140,7 +140,7 @@ Wait for the database-cluster to be in status `Cluster in healthy state`
 Check database-cluster status
 
 ```bash
-kubectl cnpg status database-cluster -n production
+kubectl cnpg status database-cluster -n qa
 ```
 
 <br>
@@ -149,16 +149,16 @@ kubectl cnpg status database-cluster -n production
 Apply database-migration
 
 ```bash
-kubectl apply -f kubernetes/database-migration-job.yaml
+kubectl apply -f k3s/database-migration-job.yaml
 ```
 
 <br>
 
 
-Get production pods
+Get qa pods
 
 ```bash
-kubectl get pods -n production --watch
+kubectl get pods -n qa --watch
 ```
 
 Wait for the database-migration to be in status `Completed`
@@ -169,7 +169,7 @@ Wait for the database-migration to be in status `Completed`
 Check psql is accessible in database-cluster
 
 ```bash
-kubectl cnpg psql database-cluster -n production
+kubectl cnpg psql database-cluster -n qa
 
 \c app
 
@@ -180,23 +180,11 @@ kubectl cnpg psql database-cluster -n production
 
 <br>
 
-Create env file and create configmap out of it
-
-```bash
-PUBLIC_DOMAIN=
-```
-
-
-```bash
-kubectl create configmap qa-ui-env --from-env-file=.env -n production
-```
-
-
 Apply redis
 
 ```bash
-kubectl apply -f kubernetes/redis-deployment.yaml
-kubectl apply -f kubernetes/redis-service.yaml
+kubectl apply -f k3s/redis-deployment.yaml
+kubectl apply -f k3s/redis-service.yaml
 ```
 
 <br>
@@ -204,8 +192,8 @@ kubectl apply -f kubernetes/redis-service.yaml
 Apply llm-api
 
 ```bash
-kubectl apply -f kubernetes/llm-api-deployment.yaml
-kubectl apply -f kubernetes/llm-api-service.yaml
+kubectl apply -f k3s/llm-api-deployment.yaml
+kubectl apply -f k3s/llm-api-service.yaml
 ```
 
 <br>
@@ -213,7 +201,7 @@ kubectl apply -f kubernetes/llm-api-service.yaml
 Apply qa-api
 
 ```bash
-kubectl apply -f kubernetes/qa-api-app.yaml
+kubectl apply -f k3s/qa-api-app.yaml
 ```
 
 <br>
@@ -221,8 +209,8 @@ kubectl apply -f kubernetes/qa-api-app.yaml
 Apply qa-ui
 
 ```bash
-kubectl apply -f kubernetes/qa-ui-deployment.yaml
-kubectl apply -f kubernetes/qa-ui-service.yaml
+kubectl apply -f k3s/qa-ui-deployment.yaml
+kubectl apply -f k3s/qa-ui-service.yaml
 ```
 
 <br>
@@ -230,8 +218,8 @@ kubectl apply -f kubernetes/qa-ui-service.yaml
 Apply websocket
 
 ```bash
-kubectl apply -f kubernetes/websocket-deployment.yaml
-kubectl apply -f kubernetes/websocket-service.yaml
+kubectl apply -f k3s/websocket-deployment.yaml
+kubectl apply -f k3s/websocket-service.yaml
 ```
 
 <br>
@@ -239,19 +227,19 @@ kubectl apply -f kubernetes/websocket-service.yaml
 Apply letsencrypt
 
 ```bash
-kubectl apply -f letsencrypt-prod.yaml
+kubectl apply -f k3s/letsencrypt-prod.yaml
 ```
 
 Apply Ingress
 
 ```bash
-kubectl apply -f kubernetes/ingress.yaml
+kubectl apply -f k3s/ingress.yaml
 ```
 
-Verify ssl is working
+Wait for ssl to be ready
 
 ```bash
-kubectl get certificate -n production
+kubectl get certificate -n qa --watch
 ```
 
 Rollout traefik:
@@ -262,10 +250,10 @@ kubectl rollout restart deployment traefik -n kube-system
 
 <br>
 
-Get all in `production` namespace
+Get all in `qa` namespace
 
 ```bash
-kubectl get all -n production
+kubectl get all -n qa
 ```
 
 <br>
@@ -275,38 +263,39 @@ kubectl get all -n production
 ## Redeployment
 
 ```bash
-kubectl rollout restart deployment/websocket-deployment -n production
-kubectl rollout restart deployment/qa-api-deployment -n production
-kubectl rollout restart deployment/qa-ui-deployment -n production
-kubectl rollout restart deployment/llm-api-deployment -n production
+kubectl rollout restart deployment/websocket-deployment -n qa
+kubectl rollout restart deployment/qa-api-deployment -n qa
+kubectl rollout restart deployment/qa-ui-deployment -n qa
+kubectl rollout restart deployment/llm-api-deployment -n qa
+kubectl rollout restart deployment/redis-deployment -n qa
 ```
 ## Get pods
 
 ```bash
-kubectl get pods -n production 
+kubectl get pods -n qa 
 ```
 
 ## Get logs
 
 ```bash
-kubectl logs -n production name
+kubectl logs -n qa name
 ```
 
 ## Deleting single deployments/services
 
 ```bash
-kubectl delete -f kubernetes/components.yaml
-kubectl delete -f kubernetes/database-cluster.yaml
-kubectl delete -f kubernetes/database-migration-job.yaml
-kubectl delete -f kubernetes/ingress.yaml
-kubectl delete -f kubernetes/llm-api-deployment.yaml
-kubectl delete -f kubernetes/llm-api-service.yaml
-kubectl delete -f kubernetes/production-namespace.yaml
-kubectl delete -f kubernetes/qa-api-app.yaml
-kubectl delete -f kubernetes/qa-ui-deployment.yaml
-kubectl delete -f kubernetes/qa-ui-service.yaml
-kubectl delete -f kubernetes/redis-deployment.yaml
-kubectl delete -f kubernetes/redis-service.yaml
-kubectl delete -f kubernetes/websocket-deployment.yaml
-kubectl delete -f kubernetes/websocket-service.yaml
+kubectl delete -f k3s/components.yaml
+kubectl delete -f k3s/database-cluster.yaml
+kubectl delete -f k3s/database-migration-job.yaml
+kubectl delete -f k3s/ingress.yaml
+kubectl delete -f k3s/llm-api-deployment.yaml
+kubectl delete -f k3s/llm-api-service.yaml
+kubectl delete -f k3s/qa-namespace.yaml
+kubectl delete -f k3s/qa-api-app.yaml
+kubectl delete -f k3s/qa-ui-deployment.yaml
+kubectl delete -f k3s/qa-ui-service.yaml
+kubectl delete -f k3s/redis-deployment.yaml
+kubectl delete -f k3s/redis-service.yaml
+kubectl delete -f k3s/websocket-deployment.yaml
+kubectl delete -f k3s/websocket-service.yaml
 ```

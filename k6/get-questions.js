@@ -7,6 +7,6 @@ export const options = {
 
 export default function () {
   http.get(
-    "http://local.production/api/questions?courseID=4",
+    "http://local.qa/api/questions?courseID=4",
   );
 }

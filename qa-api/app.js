@@ -5,7 +5,7 @@ import { serve } from "https://deno.land/std@0.222.1/http/server.ts";
 
 const publisherClient = createClient({
   socket: {
-    host: 'redis-service.production.svc.cluster.local',
+    host: 'redis-service.qa.svc.cluster.local',
     port: 6379,
   },
   pingInterval: 1000,
@@ -98,7 +98,7 @@ const handlePostQuestion = async (request) => {
         // Array to hold the generated answers
         const generatedAnswers = [];
 
-        const llmUrl = "http://llm-api-service.production.svc.cluster.local:7000/"
+        const llmUrl = "http://llm-api-service.qa.svc.cluster.local:7000/"
         
         // Call the LLM API three times to get three answers
         for (let i = 0; i < 3; i++) {

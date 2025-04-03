@@ -1,7 +1,7 @@
 import { connect } from "../deps.js";
 
 const redis = await connect({
-  hostname: 'redis-service.production.svc.cluster.local',
+  hostname: 'redis-service.qa.svc.cluster.local',
   port: 6379,
 });
 
