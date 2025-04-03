@@ -1,6 +1,6 @@
 # Q&A platform with LLM 
 
-### 🚀 [Try the app](https://qa.olli.codes/)
+### 🚀 [Try the app. Ask questions to AI or answer other people's questions!](https://qa.olli.codes/)
 
 This project is about demonstrating the use of different programming techiques by creating a question & answer (Q&A) kind of platform. The platform demonstrates programming techniques such as scalability, load balancing, message queues, event-driven architechture and static site generation.
 
@@ -8,7 +8,7 @@ The Q&A platform is intended for different kind of questions and answers. In the
 
 ## Tech
 
-I'm using a a large language model (distilgpt2), in creating the answers to the questions posted to the platform. The quality of the answers is very poor due to the model being very small. It's purpose is just to demonstrate the use of LLM APIs in a actual project. The model could be easily replaced with a better larger model that would give better answers. 
+The LLM model used in the project is gpt-4o-mini from OpenAI. This branch of the app uses distilgpt2 model but in the ```docker-stack``` I'm using the better version from OpenAI.
 
 The answers of the LLM are updated to the user automatically using websockets. So there is no need to refresh the page. Also questions posted to the platform will automatically appear to other users without others needing to refresh the site.
 

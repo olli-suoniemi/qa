@@ -1,3 +1,5 @@
 app-cache
 project.env
 qa-database-data
+.secrets
+*.pem
