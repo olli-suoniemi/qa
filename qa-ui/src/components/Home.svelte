@@ -5,12 +5,14 @@
   let courses = [];
   
   let loading = true; // Track the loading state
-  const apiUrl = '/api'
+
+  // const apiDomain = "https://api.localhost";
+  const apiDomain = "https://qa.olli.codes/api";
 
   // Fetch available courses from the API when the component mounts
   onMount(async () => {
     try {
-      const response = await fetch(`${apiUrl}/courses`, { method: 'GET' });
+      const response = await fetch(`${apiDomain}/courses`, { method: 'GET' });
       if (!response.ok) {
         throw new Error('Failed to fetch courses');
       }

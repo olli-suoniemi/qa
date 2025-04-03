@@ -1,4 +1,4 @@
-import { sql } from "../util/database.js";
+import { sql } from "../util/databaseConnect.js";
 
 // --- Courses ---
 

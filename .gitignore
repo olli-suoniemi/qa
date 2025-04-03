@@ -1,3 +1,5 @@
 app-cache
 project.env
 production-database-data
+*.pem
+.secrets

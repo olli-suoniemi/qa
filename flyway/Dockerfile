@@ -1,8 +1,13 @@
-# Use the official Flyway image
-FROM flyway/flyway:9.8.3-alpine
+# Use the official Flyway image as the base
+FROM flyway/flyway:11
 
-# Copy the SQL migration scripts into the Flyway container
-COPY sql/ /flyway/sql/
+# Copy a custom script to handle secrets and run Flyway
+COPY entrypoint.sh /flyway/entrypoint.sh
 
-# Use shell form for entrypoint to get access to env variables
-ENTRYPOINT ./flyway migrate -user=$FLYWAY_USER -password=$FLYWAY_PASSWORD -url="jdbc:postgresql://${DATABASE_CLUSTER_RW_SERVICE_HOST}:${DATABASE_CLUSTER_RW_SERVICE_PORT}/${FLYWAY_USER}"
+# Ensure the script is executable
+RUN chmod +x /flyway/entrypoint.sh
+
+COPY ./sql /flyway/sql
+
+# Override the entrypoint to use the custom script
+ENTRYPOINT ["/flyway/entrypoint.sh"]

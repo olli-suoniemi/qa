@@ -4,8 +4,11 @@
 
   export let questionId; // Question ID passed as a prop
 
-  const domain = 'qa.olli.codes'
-  const apiUrl = '/api'
+  // const apiDomain = "https://api.localhost";
+  // const wsDomain = "wss://ws.localhost/ws";
+
+  const apiDomain = "https://qa.olli.codes/api";
+  const wsDomain = "wss://qa.olli.codes/ws";
 
   let question = null; // To hold the question details
   let answers = []; // To hold answers for the question
@@ -23,7 +26,7 @@
   let manualClose = false; // Track if the WebSocket was closed manually
   
   const setupWebSocket = () => {
-    const wsUrl = `wss://${domain}/ws?question=${questionId}`;
+    const wsUrl = `${wsDomain}?question=${questionId}`;
     ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
@@ -70,7 +73,7 @@
     loading = true; // Set loading to true while fetching
 
     try {
-      const response = await fetch(`${apiUrl}/question/${questionId}?page=${1}&limit=${limit}`);
+      const response = await fetch(`${apiDomain}/question/${questionId}?page=${1}&limit=${limit}`);
       if (!response.ok) throw new Error('Question not found'); 
 
       const questionData = await response.json();
@@ -89,7 +92,7 @@
   // Function to fetch the question details and its answers when in need of loading more answers (bottom of the page)
   const fetchQuestionDetails = async (page = 1) => {
     try {
-      const response = await fetch(`${apiUrl}/question/${questionId}?page=${page}&limit=${limit}`);
+      const response = await fetch(`${apiDomain}/question/${questionId}?page=${page}&limit=${limit}`);
       if (!response.ok) throw new Error('Question not found'); 
 
       const questionData = await response.json();
@@ -132,7 +135,7 @@
     };
 
     try {
-      const response = await fetch(`${apiUrl}/answer`, {
+      const response = await fetch(`${apiDomain}/answer`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -160,7 +163,7 @@
   // Function to handle upvoting an answer
   const upvoteAnswer = async (answerId) => {
     try {
-      const response = await fetch(`${apiUrl}/answer/upvote/${answerId}`, {
+      const response = await fetch(`${apiDomain}/answer/upvote/${answerId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

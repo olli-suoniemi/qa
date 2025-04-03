@@ -11,4 +11,4 @@ COPY . .
 EXPOSE 7788
 
 # Run the WebSocket server
-CMD [ "run", "--allow-net", "--watch", "--allow-env", "app.js" ]
+CMD [ "run", "--allow-net", "--allow-env", "app.js" ]

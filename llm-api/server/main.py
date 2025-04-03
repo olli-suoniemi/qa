@@ -1,5 +1,5 @@
 from fastapi import Request, FastAPI
-from .models import generator
+from .models import generate_response 
 
 app = FastAPI()
 
@@ -10,4 +10,4 @@ async def main():
 @app.post("/")
 async def ask_question(request: Request):
     data = await request.json()
-    return generator(data["question"])
+    return {"response": generate_response(data["question"])}

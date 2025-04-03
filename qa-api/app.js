@@ -3,14 +3,13 @@ import { cacheMethodCalls } from "./util/cacheUtil.js";
 import { createClient } from "npm:redis";
 import { serve } from "https://deno.land/std@0.222.1/http/server.ts";
 
+// let llmUrl = "http://llm-api:7000/";
+const llmUrl = "https://qa.olli.codes/llm";
+
 const publisherClient = createClient({
-  socket: {
-    host: 'redis-service.production.svc.cluster.local',
-    port: 6379,
-  },
+  url: "redis://redis:6379",
   pingInterval: 1000,
 });
-
 
 publisherClient.on('error', (err) => console.error('Redis Client Error', err));
 await publisherClient.connect();
@@ -95,73 +94,65 @@ const handlePostQuestion = async (request) => {
     // Asynchronously handle LLM answer generation and publishing to Redis
     (async () => {
       try {
-        // Array to hold the generated answers
-        const generatedAnswers = [];
-
-        const llmUrl = "http://llm-api-service.production.svc.cluster.local:7000/"
+        // Call the LLM API
+        const llmResponse = await fetch(llmUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ question: questionText }),
+        });
         
-        // Call the LLM API three times to get three answers
-        for (let i = 0; i < 3; i++) {
-          const llmResponse = await fetch(llmUrl, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ question: questionText }),
-          });
 
+        const answer = await llmResponse.json();
 
-          if (llmResponse.ok) {
-            const answer = await llmResponse.json(); 
-            
-            let generatedText = answer[0].generated_text;
-            
-            try {
-              const createdAt = new Date();
-              const lastUpdated = new Date();
-              
-              // Add the new LLM answer to the database
-              const newAnswer = {
-                questionID: resultID,
-                answerText: generatedText,
-                userID: 'LLM',
-                createdAt: createdAt,
-                lastUpdated: lastUpdated,
-                isLLMGenerated: true
-              };
-
-              const answerResult = await cachedQuestionService.addAnswer(newAnswer);
-
-              const resultCopy = JSON.parse(JSON.stringify(answerResult)); // Deep clone
-              const answerID = resultCopy.id; // Use resultCopy
-
-              // Publish generated answer to a Redis channel for further processing
-              const resultChannel = `question_${resultID}`;
-              const resultAnswer = {
-                id: answerID,
-                question_id: resultID,
-                content: generatedText,
-                user_id: 'LLM',
-                created_at: createdAt,
-                last_updated: lastUpdated,
-                is_llm_generated: true,
-                upvote_count: 0
-              }
-              await publisherClient.publish(resultChannel, JSON.stringify(resultAnswer));
-              console.log(`Answer of ID ${answerID} published to channel ${resultChannel}`);
-    
-            } catch (error) {
-              console.error(error)
-            }
-            
-            // Push the cleaned answer into the array
-            generatedAnswers.push(generatedText); 
-            
-          } else {
-            console.error(`Failed to generate LLM answer for question ${result.id}`);
-          }
+        // Check for an error in the response from the LLM API
+        if (!answer.response || !answer.response.status) {
+          console.error(`Error from LLM: ${answer.response?.message || "Unknown error"}`);
+          return;
         }
-  
+
+        // Process the generated text
+        const generatedText = answer.response.message;
+
+        try {
+          const createdAt = new Date();
+          const lastUpdated = new Date();
+          
+          // Add the new LLM answer to the database
+          const newAnswer = {
+            questionID: resultID,
+            answerText: generatedText,
+            userID: 'LLM',
+            createdAt: createdAt,
+            lastUpdated: lastUpdated,
+            isLLMGenerated: true
+          };
+
+          const answerResult = await cachedQuestionService.addAnswer(newAnswer);
+
+          const resultCopy = JSON.parse(JSON.stringify(answerResult)); // Deep clone
+          const answerID = resultCopy.id; // Use resultCopy
+
+          // Publish generated answer to a Redis channel for further processing
+          const resultChannel = `question_${resultID}`;
+          const resultAnswer = {
+            id: answerID,
+            question_id: resultID,
+            content: generatedText,
+            user_id: 'LLM',
+            created_at: createdAt,
+            last_updated: lastUpdated,
+            is_llm_generated: true,
+            upvote_count: 0
+          }
+          await publisherClient.publish(resultChannel, JSON.stringify(resultAnswer));
+          console.log(`Answer of ID ${answerID} published to channel ${resultChannel}`);
+
+        } catch (error) {
+          console.error("Error while processing and storing the generated answer:", error);
+        }
+        
       } catch (error) {
         console.error(`Error while calling LLM API or publishing to Redis: ${error}`);
       }
@@ -322,14 +313,34 @@ const handleRequest = async (request) => {
     (um) => um.method === request.method && um.pattern.test(request.url)
   );
 
+  // Handle CORS preflight requests
+  if (request.method === "OPTIONS") {
+    return new Response(null, {
+      status: 204, // No Content
+      headers: {
+        "Access-Control-Allow-Origin": "*", // Allow requests from any origin
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type",
+      },
+    });
+  }
+
   if (!mapping) {
     return new Response("Not found", { status: 404 });
   }
 
   const mappingResult = mapping.pattern.exec(request.url);
   try {
-    return await mapping.fn(request, mappingResult);
+    const response = await mapping.fn(request, mappingResult);
+
+    // Add CORS headers to every response
+    response.headers.set("Access-Control-Allow-Origin", "*");
+    response.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    response.headers.set("Access-Control-Allow-Headers", "Content-Type");
+
+    return response;
   } catch (e) {
+    console.error(e);
     return new Response(e.stack, { status: 500 });
   }
 };

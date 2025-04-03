@@ -4,8 +4,11 @@
 
   export let courseId;
 
-  const domain = 'qa.olli.codes'
-  const apiUrl = '/api'
+  // const apiDomain = "https://api.localhost";
+  // const wsDomain = "wss://ws.localhost/ws";
+
+  const apiDomain = "https://qa.olli.codes/api";
+  const wsDomain = "wss://qa.olli.codes/ws";
 
   let course = null;
   let questions = [];
@@ -23,7 +26,7 @@
   let manualClose = false; // Track if the WebSocket was closed manually
   
   const setupWebSocket = () => {
-    const wsUrl = `wss://${domain}/ws?course=${courseId}`;
+    const wsUrl = `${wsDomain}?course=${courseId}`;
     ws = new WebSocket(wsUrl);
 
     ws.onopen = () => {
@@ -64,7 +67,7 @@
   // Function to fetch course details and related questions
   const fetchCourseDetails = async () => {
     try {
-      const courseResponse = await fetch(`${apiUrl}/courses/${courseId}`);
+      const courseResponse = await fetch(`${apiDomain}/courses/${courseId}`);
       if (!courseResponse.ok) throw new Error('Course not found');
 
       const courseData = await courseResponse.json();
@@ -83,7 +86,7 @@
   // Function to fetch questions with pagination
   const fetchQuestions = async (page) => {
     try {
-      const questionsResponse = await fetch(`${apiUrl}/questions?courseID=${courseId}&page=${page}&limit=${limit}`);
+      const questionsResponse = await fetch(`${apiDomain}/questions?courseID=${courseId}&page=${page}&limit=${limit}`);
       if (!questionsResponse.ok) throw new Error('Failed to fetch questions');
 
       const fetchedQuestions = await questionsResponse.json();
@@ -120,7 +123,7 @@
     };
 
     try {
-      const response = await fetch(`${apiUrl}/question`, {
+      const response = await fetch(`${apiDomain}/question`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -146,7 +149,7 @@
   // Function to handle upvote
   const upvoteQuestion = async (questionID) => {
     try {
-      const response = await fetch(`${apiUrl}/question/upvote/${questionID}`, {
+      const response = await fetch(`${apiDomain}/question/upvote/${questionID}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
